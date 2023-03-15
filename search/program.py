@@ -74,8 +74,8 @@ def count_red_num(board):
 
     return total
 
-def update_board(board, target, chess_col):
 
+def update_board(board, target, chess_col):
     # update a exist chess
     if target in board:
         chess_cur = board.get(target)
@@ -92,19 +92,20 @@ def update_board(board, target, chess_col):
     else:
         board[target] = (chess_col, 1)
 
+
 # board is a dictionary in form of {(1,1):('r',1),(1,2):('b',2)}
 # action is a tuple in form of (1,1,0,1)
 def spread(board, action):
-    chess_r = action[0]
-    chess_q = action[1]
+    target_r = action[0]
+    target_q = action[1]
     direction_r = action[2]
     direction_q = action[3]
-    status = board.get(chess_r, chess_q)
+    status = board.get((target_r, target_q))
     chess_col = status[0]
     chess_pow = status[1]
 
-    for i in chess_pow:
-        target_r = chess_r + direction_r
+    for i in range(chess_pow):
+        target_r = target_r + direction_r
 
         # when hit the board edge
         if target_r < 0:
@@ -112,7 +113,7 @@ def spread(board, action):
         elif target_r > 6:
             target_r = 0
 
-        target_q = chess_q + direction_q
+        target_q = target_q + direction_q
 
         # when hit the board edge
         if target_q < 0:
