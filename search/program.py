@@ -28,3 +28,48 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         (1, 4, 0, -1),
         (1, 3, 0, -1)
     ]
+
+
+# count the total power of one color in board.
+def count_blue_power(board):
+    total = 0
+    value_list = list(board.values())
+
+    for i in range(len(value_list)):
+        if value_list[i][0] == 'b':
+            total += value_list[i][1]
+
+    return total
+
+
+def count_red_power(board):
+    total = 0
+    value_list = list(board.values())
+
+    for i in range(len(value_list)):
+        if value_list[i][0] == 'r':
+            total += value_list[i][1]
+
+    return total
+
+
+# count the total num of one color
+def count_blue_num(board):
+    total = 0
+    value_list = list(board.values())
+
+    for i in range(len(value_list)):
+        if value_list[i][0] == 'b':
+            total += 1
+
+    return total
+
+def count_red_num(board):
+    total = 0
+    value_list = list(board.values())
+
+    for i in range(len(value_list)):
+        if value_list[i][0] == 'r':
+            total += 1
+
+    return total
