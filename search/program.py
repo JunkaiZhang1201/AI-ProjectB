@@ -105,6 +105,8 @@ def spread(board, action):
     chess_col = status[0]
     chess_pow = status[1]
 
+    del board[(target_r, target_q)]
+
     for i in range(chess_pow):
         target_r = target_r + direction_r
 
