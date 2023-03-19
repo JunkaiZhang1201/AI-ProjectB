@@ -64,6 +64,7 @@ def count_blue_num(board):
 
     return total
 
+
 def count_red_num(board):
     total = 0
     value_list = list(board.values())
@@ -125,5 +126,79 @@ def spread(board, action):
         update_board(board, target, chess_col)
 
 
+# get D coordinate of a chess
+# which is a tuple in form of (1,1)
+def count_D(chess) -> int:
+    if chess[0] + chess[1] == 0 or chess[0] + chess[1] == 7:
+        return 0
+    elif chess[0] + chess[1] == 1 or chess[0] + chess[1] == 8:
+        return 1
+    elif chess[0] + chess[1] == 2 or chess[0] + chess[1] == 9:
+        return 2
+    elif chess[0] + chess[1] == 3 or chess[0] + chess[1] == 10:
+        return 3
+    elif chess[0] + chess[1] == 4 or chess[0] + chess[1] == 11:
+        return 4
+    elif chess[0] + chess[1] == 5 or chess[0] + chess[1] == 12:
+        return 5
+    else:
+        return 6
 
 
+# get the line list using the greedy algorithm
+# the element in the list which is returned has a form like 'r1'
+def record_line(board, my_dict, my_list) -> list:
+    copy_dict = my_dict
+    copy_board = board
+    max_value = max(my_dict.values())
+
+    if max_value <= 0:
+        return list(set(my_list))
+    else:
+        for key, value in my_dict.items():
+            if value == max_value:
+                my_list.append(key)
+
+                # decrease the sum of each axis if a blue chess is on the longest line
+                # and delete this chess on board
+                for chess in copy_board:
+                    if copy_board[chess][0] == 'b':
+                        if ('r' + f"{chess[0]}" == key) or \
+                                ('q' + f"{chess[1]}" == key) or \
+                                ('D' + f"{count_D(chess)}" == key):
+                            copy_dict['r' + f"{chess[0]}"] -= 1
+                            copy_dict['q' + f"{chess[1]}"] -= 1
+                            copy_dict['D' + f"{count_D(chess)}"] -= 1
+                            del copy_board[chess]
+                return record_line(copy_board, copy_dict, my_list)
+
+
+def heuristic(board) -> int:
+    record_list = []
+    # dic which used to record the coordinates of (lines for) blue chess.
+    findline_dict = {'r0': 0, 'r1': 0, 'r2': 0, 'r3': 0, 'r4': 0, 'r5': 0, 'r6': 0,
+                     'q0': 0, 'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0, 'q5': 0, 'q6': 0,
+                     'D0': 0, 'D1': 0, 'D2': 0, 'D3': 0, 'D4': 0, 'D5': 0, 'D6': 0}
+
+    # count each line's chess num
+    for chess in board:
+        chess_val = board[chess]
+        if chess_val[0] == 'b':
+            findline_dict['r' + f"{chess[0]}"] += 1
+            findline_dict['q' + f"{chess[1]}"] += 1
+            findline_dict['D' + f"{count_D(chess)}"] += 1
+
+    line_list = record_line(board, findline_dict, record_list)
+    line_num = len(line_list)
+
+    # if a red chess is on the line that in the minimum line list
+    for chess in board:
+        chess_val = board[chess]
+        if chess_val[0] == 'r':
+            if ('r' + f"{chess[0]}") in line_list or \
+                    ('q' + f"{chess[1]}") in line_list or \
+                    ('D' + f"{count_D(chess)}") in line_list:
+                return line_num
+
+    # if no red chess is on the line that in the minimum line list
+    return 1 + line_num
