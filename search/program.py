@@ -1,7 +1,7 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from .utils import render_board
+from utils import render_board
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
@@ -171,7 +171,7 @@ def record_line(board, my_dict, my_list) -> list:
                             copy_dict['r' + f"{chess[0]}"] -= 1
                             copy_dict['q' + f"{chess[1]}"] -= 1
                             copy_dict['D' + f"{count_D(chess)}"] -= 1
-                            del copy_board[chess]
+
                 return record_line(copy_board, copy_dict, my_list)
 
 
@@ -204,3 +204,5 @@ def heuristic(board) -> int:
 
     # if no red chess is on the line that in the minimum line list
     return 1 + line_num
+
+
