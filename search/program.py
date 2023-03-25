@@ -5,7 +5,7 @@ from utils import render_board
 from Tree import TreeNode
 
 
-def search111(input: dict[tuple, tuple]) -> list[tuple]:
+def search(input: dict[tuple, tuple]) -> list[tuple]:
     """
     This is the entry point for your submission. The input is a dictionary
     of board cell states, where the keys are tuples of (r, q) coordinates, and
@@ -19,16 +19,18 @@ def search111(input: dict[tuple, tuple]) -> list[tuple]:
     # board state in a human-readable format. Try changing the ansi argument
     # to True to see a colour-coded version (if your terminal supports it).
     print(render_board(input, ansi=False))
+    result = astar(input)
+    return result
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
-    return [
+    """return [
         (5, 6, -1, 1),
         (3, 1, 0, 1),
         (3, 2, -1, 1),
         (1, 4, 0, -1),
         (1, 3, 0, -1)
-    ]
+    ]"""
 
 
 # count the total power of one color in board.
@@ -254,14 +256,15 @@ def find_child(node, child_list):
 
 
 # A*
-def search(input: dict[tuple, tuple]) -> list[tuple]:
+def astar(board):
 
     start_node = make_q_node(board, 0)
     action_tree = TreeNode(board, None)
     h = []
     heapq.heappush(h, start_node)
 
-    while True:
+    while(j<100000):
+        j = j+1
         node = heapq.heappop()
         if goal_test(node) == 1:
             break
