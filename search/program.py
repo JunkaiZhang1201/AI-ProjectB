@@ -205,58 +205,42 @@ def heuristic(board) -> int:
     # if no red chess is on the line that in the minimum line list
     return 1 + line_num
 
-# A*
+# build a heap
 import heapq
 
-def astar(start, goal, graph):
+# A*
+def astar(board):
 
-    frontier = []
-    heapq.heappush(frontier, (0, start)) # priority queue with the start node
-    came_from = {}
-    cost_so_far = {}
-    came_from[start] = None
-    cost_so_far[start] = 0
+    start_node = make_q_node(board, 0)
+    action_tree = maketree(board)
+    h = []
+    heapq.heappush(h, start_node)
 
-    while frontier:
-        _, current = heapq.heappop(frontier) # get the node with the lowest cost
-
-        # modify
-        if current == goal:
+    while True:
+        node = heapq.heappop()
+        if goal_test(node) == 1:
             break
+        else:
+            child = []
+            find_child(node, child)
+            for i in child:
+                heapq.heappush(h,i)
+                #entree
 
-        for neighbor in graph[current]:
-            new_cost = cost_so_far[current] + graph[current][neighbor] # calculate the new cost to reach the neighbor
-            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
-                priority = new_cost + heuristic(neighbor, goal) # calculate the priority of the neighbor
-                heapq.heappush(frontier, (priority, neighbor)) # add the neighbor to the frontier
-                came_from[neighbor] = current
+    return backtrack(action_tree)
 
-    # Reconstruct the path from start to goal
-    path = []
-    node = goal
-    while node != start:
-        path.append(node)
-        node = came_from[node]
-    path.append(start)
-    path.reverse()
+# make a node for heap
+def make_q_node(board, num_step):
+    h_value = heuristic(board)
+    eval = h_value + current_cost
+    node = (eval, board)
+    return node
 
-    return path
+# check if goal
+def goal_test(node):
+    if count_blue_num(node[1]) == 0:
+        return 1
+    else:
+        return 0
 
-
-
-# Example usage
-graph = {
-    (0, 0): {(0, 1): 1, (1, 0): 1},
-    (0, 1): {(0, 0): 1, (1, 1): 1},
-    (1, 0): {(0, 0): 1, (1, 1): 1},
-    (1, 1): {(0, 1): 1, (1, 0): 1}
-}
-
-start = (0, 0)
-goal = (1, 1)
-
-path = astar(start, goal, graph)
-
-print(path)
 
