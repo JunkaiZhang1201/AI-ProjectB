@@ -176,34 +176,37 @@ def record_line(board, my_dict, my_list) -> list:
 
 
 def heuristic(board) -> int:
-    record_list = []
-    # dic which used to record the coordinates of (lines for) blue chess.
-    findline_dict = {'r0': 0, 'r1': 0, 'r2': 0, 'r3': 0, 'r4': 0, 'r5': 0, 'r6': 0,
-                     'q0': 0, 'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0, 'q5': 0, 'q6': 0,
-                     'D0': 0, 'D1': 0, 'D2': 0, 'D3': 0, 'D4': 0, 'D5': 0, 'D6': 0}
+    if count_blue_num(board) == 0:
+        return 0
+    else:
+        record_list = []
+        # dic which used to record the coordinates of (lines for) blue chess.
+        findline_dict = {'r0': 0, 'r1': 0, 'r2': 0, 'r3': 0, 'r4': 0, 'r5': 0, 'r6': 0,
+                         'q0': 0, 'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0, 'q5': 0, 'q6': 0,
+                         'D0': 0, 'D1': 0, 'D2': 0, 'D3': 0, 'D4': 0, 'D5': 0, 'D6': 0}
 
-    # count each line's chess num
-    for chess in board:
-        chess_val = board[chess]
-        if chess_val[0] == 'b':
-            findline_dict['r' + f"{chess[0]}"] += 1
-            findline_dict['q' + f"{chess[1]}"] += 1
-            findline_dict['D' + f"{count_D(chess)}"] += 1
+        # count each line's chess num
+        for chess in board:
+            chess_val = board[chess]
+            if chess_val[0] == 'b':
+                findline_dict['r' + f"{chess[0]}"] += 1
+                findline_dict['q' + f"{chess[1]}"] += 1
+                findline_dict['D' + f"{count_D(chess)}"] += 1
 
-    line_list = record_line(board, findline_dict, record_list)
-    line_num = len(line_list)
+        line_list = record_line(board, findline_dict, record_list)
+        line_num = len(line_list)
 
-    # if a red chess is on the line that in the minimum line list
-    for chess in board:
-        chess_val = board[chess]
-        if chess_val[0] == 'r':
-            if ('r' + f"{chess[0]}") in line_list or \
-                    ('q' + f"{chess[1]}") in line_list or \
-                    ('D' + f"{count_D(chess)}") in line_list:
-                return line_num
+        # if a red chess is on the line that in the minimum line list
+        for chess in board:
+            chess_val = board[chess]
+            if chess_val[0] == 'r':
+                if ('r' + f"{chess[0]}") in line_list or \
+                        ('q' + f"{chess[1]}") in line_list or \
+                        ('D' + f"{count_D(chess)}") in line_list:
+                    return line_num
 
-    # if no red chess is on the line that in the minimum line list
-    return 1 + line_num
+        # if no red chess is on the line that in the minimum line list
+        return 1 + line_num
 
 # build a heap
 import heapq
