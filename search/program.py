@@ -5,18 +5,18 @@ from utils import render_board
 from Tree import TreeNode
 
 
-def search1(input: dict[tuple, tuple]) -> list[tuple]:
+def search111(input: dict[tuple, tuple]) -> list[tuple]:
     """
     This is the entry point for your submission. The input is a dictionary
     of board cell states, where the keys are tuples of (r, q) coordinates, and
-    the values are tuples of (p, k) cell states. The output should be a list of 
+    the values are tuples of (p, k) cell states. The output should be a list of
     actions, where each action is a tuple of (r, q, dr, dq) coordinates.
 
     See the specification document for more details.
     """
 
-    # The render_board function is useful for debugging -- it will print out a 
-    # board state in a human-readable format. Try changing the ansi argument 
+    # The render_board function is useful for debugging -- it will print out a
+    # board state in a human-readable format. Try changing the ansi argument
     # to True to see a colour-coded version (if your terminal supports it).
     print(render_board(input, ansi=False))
 
@@ -254,7 +254,7 @@ def find_child(node, child_list):
 
 
 # A*
-def search(board):
+def search(input: dict[tuple, tuple]) -> list[tuple]:
 
     start_node = make_q_node(board, 0)
     action_tree = TreeNode(board, None)
