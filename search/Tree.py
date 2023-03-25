@@ -13,7 +13,7 @@ class TreeNode:
 
     # get the path from goal node to initial board by actions
     def track_back(self):
-        current_node = self
+        current_node = self 
         path = []
         while current_node is not None:
             path += current_node.action
