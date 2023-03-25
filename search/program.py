@@ -2,6 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from utils import render_board
+from Tree import TreeNode
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
@@ -94,6 +95,7 @@ def update_board(board, target, chess_col):
         board[target] = (chess_col, 1)
 
 
+
 # board is a dictionary in form of {(1,1):('r',1),(1,2):('b',2)}
 # action is a tuple in form of (1,1,0,1)
 def spread(board, action):
@@ -126,6 +128,8 @@ def spread(board, action):
 
         target = (target_r, target_q)
         update_board(board, target, chess_col)
+
+    return board
 
 
 # get D coordinate of a chess
@@ -211,11 +215,49 @@ def heuristic(board) -> int:
 # build a heap
 import heapq
 
+
+
+# make a node for heap
+def make_q_node(board, num_step):
+    h_value = heuristic(board)
+    eval = h_value + current_cost
+    node = (eval, board, num_step)
+    return node
+
+# check if goal
+def goal_test(node):
+    if count_blue_num(node[1]) == 0:
+        return 1
+    else:
+        return 0
+
+# spread a node to six directions
+def find_child(node, child_list):
+    cur_board = node[1]
+    cur_cost = node[2]
+    num_red = count_red_num(node[1])
+    action_list = []
+
+    for key, value in cur_board.items():
+        if value[0] == 'r':
+            direction = [(0,1), (0,-1), (1,0), (-1,0), (-1,1), (1,-1)]
+            for dir in direction:
+                action = (key[0], key[1], direction[dir][0], direction[dir][1])
+                action_list.append(action)
+
+    for act in action_list:
+        child_board = spread(cur_board, act)
+        child_node = make_q_node(child_board, cur_cost+1)
+        child_tuple = (act, child_node)
+        child_list.append(child_tuple)
+
+
+
 # A*
 def astar(board):
 
     start_node = make_q_node(board, 0)
-    action_tree = maketree(board)
+    action_tree = TreeNode(board, None)
     h = []
     heapq.heappush(h, start_node)
 
@@ -227,23 +269,8 @@ def astar(board):
             child = []
             find_child(node, child)
             for i in child:
-                heapq.heappush(h,i)
-                #entree
+                heapq.heappush(h,i[1])
+                action_tree.make_child(i[1][1], i[0])
 
-    return backtrack(action_tree)
-
-# make a node for heap
-def make_q_node(board, num_step):
-    h_value = heuristic(board)
-    eval = h_value + current_cost
-    node = (eval, board)
-    return node
-
-# check if goal
-def goal_test(node):
-    if count_blue_num(node[1]) == 0:
-        return 1
-    else:
-        return 0
-
+    return action_tree.track_back()
 
