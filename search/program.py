@@ -5,7 +5,7 @@ from utils import render_board
 from Tree import TreeNode
 
 
-def search(input: dict[tuple, tuple]) -> list[tuple]:
+def search1(input: dict[tuple, tuple]) -> list[tuple]:
     """
     This is the entry point for your submission. The input is a dictionary
     of board cell states, where the keys are tuples of (r, q) coordinates, and
@@ -254,7 +254,7 @@ def find_child(node, child_list):
 
 
 # A*
-def astar(board):
+def search(board):
 
     start_node = make_q_node(board, 0)
     action_tree = TreeNode(board, None)
