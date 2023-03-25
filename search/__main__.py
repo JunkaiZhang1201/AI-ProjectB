@@ -2,7 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search
+from .program import search
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
 #          You should be modifying the search function in program.py instead.

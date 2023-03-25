@@ -1,8 +1,7 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from utils import render_board
-from Tree import TreeNode
+from .utils import render_board
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
@@ -19,7 +18,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     # board state in a human-readable format. Try changing the ansi argument
     # to True to see a colour-coded version (if your terminal supports it).
     print(render_board(input, ansi=False))
-    result = astar(input)
+    result = A_star(input)
     return result
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
@@ -95,7 +94,6 @@ def update_board(board, target, chess_col):
     # create a new chess
     else:
         board[target] = (chess_col, 1)
-
 
 
 # board is a dictionary in form of {(1,1):('r',1),(1,2):('b',2)}
@@ -214,17 +212,20 @@ def heuristic(board) -> int:
         # if no red chess is on the line that in the minimum line list
         return 1 + line_num
 
+
 # build a heap
 import heapq
 
 
-
 # make a node for heap
-def make_q_node(board, num_step):
+def make_q_node(board, num_step, action, parent):
     h_value = heuristic(board)
-    eval = h_value + current_cost
-    node = (eval, board, num_step)
+    eval = h_value + num_step
+    node = (eval, board, num_step, action, parent)
+    if parent is not None:
+        node[3].insert(0, node[4][3])
     return node
+
 
 # check if goal
 def goal_test(node):
@@ -232,6 +233,7 @@ def goal_test(node):
         return 1
     else:
         return 0
+
 
 # spread a node to six directions
 def find_child(node, child_list):
@@ -242,38 +244,32 @@ def find_child(node, child_list):
 
     for key, value in cur_board.items():
         if value[0] == 'r':
-            direction = [(0,1), (0,-1), (1,0), (-1,0), (-1,1), (1,-1)]
-            for dir in direction:
-                action = (key[0], key[1], direction[dir][0], direction[dir][1])
+            direction = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, 1), (1, -1)]
+            for d in direction:
+                action = (key[0], key[1], direction[d][0], direction[d][1])
                 action_list.append(action)
 
     for act in action_list:
         child_board = spread(cur_board, act)
-        child_node = make_q_node(child_board, cur_cost+1)
-        child_tuple = (act, child_node)
-        child_list.append(child_tuple)
-
+        child_node = make_q_node(child_board, cur_cost + 1, [act], node)
+        child_list.append(child_node)
 
 
 # A*
-def astar(board):
-
-    start_node = make_q_node(board, 0)
-    action_tree = TreeNode(board, None)
+def A_star(board):
+    start_node = make_q_node(board, 0, [], None)
     h = []
     heapq.heappush(h, start_node)
 
-    while(j<100000):
-        j = j+1
+    while True:
         node = heapq.heappop()
         if goal_test(node) == 1:
-            break
+            return node[2]
         else:
             child = []
             find_child(node, child)
             for i in child:
-                heapq.heappush(h,i[1])
-                action_tree.make_child(i[1][1], i[0])
+                heapq.heappush(h, i[1])
 
-    return action_tree.track_back()
+
 
