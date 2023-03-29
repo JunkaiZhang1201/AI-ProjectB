@@ -9,8 +9,7 @@ class Node:
         self.eval = h_value + num_step
         if parent is not None:
             if parent.action is not None:
-                for pre_act in parent.action:
-                    self.action.insert(0, pre_act)
+                self.action = parent.action + self.action
 
     def __lt__(self, other):
         return self.eval < other.eval

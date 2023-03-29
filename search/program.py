@@ -268,7 +268,7 @@ def A_star(board, heuristic):
     while True:
         node = heapq.heappop(h)
         if goal_test(node) == 1:
-            return node.num_step
+            return node.action
         else:
             child = []
             find_child(node, child, heuristic)
