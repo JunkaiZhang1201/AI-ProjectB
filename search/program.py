@@ -1,8 +1,9 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from .utils import render_board
+from search.utils import render_board
 from copy import deepcopy
+from search.Node import Node
 
 
 def search(input):
@@ -19,7 +20,7 @@ def search(input):
     # board state in a human-readable format. Try changing the ansi argument
     # to True to see a colour-coded version (if your terminal supports it).
     print(render_board(input, ansi=False))
-    result = A_star(input)
+    result = A_star(input, heuristic)
     return result
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
@@ -219,29 +220,29 @@ import heapq
 
 
 # make a node for heap
-def make_q_node(board, num_step, action, parent):
-    h_value = heuristic(board)
-    eval = h_value + num_step
-    node = (eval, board, num_step, action, parent)
-    if parent is not None:
-        if parent[3] is not None:
-            for pre_act in parent[3]:
-                node[3].insert(0, node[4][3][pre_act])
-    return node
+# def make_q_node(board, num_step, action, parent):
+#     h_value = heuristic(board)
+#     eval = h_value + num_step
+#     node = (eval, board, num_step, action, parent)
+#     if parent is not None:
+#         if parent[3] is not None:
+#             for pre_act in parent[3]:
+#                 node[3].insert(0, node[4][3][pre_act])
+#     return node
 
 
 # check if goal
 def goal_test(node):
-    if count_blue_num(node[1]) == 0:
+    if count_blue_num(node.board) == 0:
         return 1
     else:
         return 0
 
 
 # spread a node to six directions
-def find_child(node, child_list):
-    cur_board = node[1]
-    cur_cost = node[2]
+def find_child(node, child_list, heuristic):
+    cur_board = node.board
+    cur_cost = node.num_step
     action_list = []
 
     for key, value in cur_board.items():
@@ -252,27 +253,27 @@ def find_child(node, child_list):
                 action_list.append(action)
 
     for act in action_list:
-        next_board = deepcopy(node[1])
+        next_board = deepcopy(node.board)
         child_board = spread(next_board, act)
-        child_node = make_q_node(child_board, cur_cost + 1, [act], node)
+        child_node = Node(child_board, cur_cost + 1, [act], node, heuristic)
         child_list.append(child_node)
 
 
 # A*
-def A_star(board):
-    start_node = make_q_node(board, 0, [], None)
+def A_star(board, heuristic):
+    start_node = Node(board, 0, [], None, heuristic)
     h = []
     heapq.heappush(h, start_node)
 
     while True:
         node = heapq.heappop(h)
         if goal_test(node) == 1:
-            return node[2]
+            return node.num_step
         else:
             child = []
-            find_child(node, child)
+            find_child(node, child, heuristic)
             for i in child:
-                heapq.heappush(h, i[1])
+                heapq.heappush(h, i)
 
 
 
