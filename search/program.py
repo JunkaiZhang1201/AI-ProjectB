@@ -1,11 +1,11 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from utils import render_board
-from Tree import TreeNode
+from .utils import render_board
+from copy import deepcopy
 
 
-def search(input: dict[tuple, tuple]) -> list[tuple]:
+def search(input):
     """
     This is the entry point for your submission. The input is a dictionary
     of board cell states, where the keys are tuples of (r, q) coordinates, and
@@ -19,18 +19,18 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     # board state in a human-readable format. Try changing the ansi argument
     # to True to see a colour-coded version (if your terminal supports it).
     print(render_board(input, ansi=False))
-    result = astar(input)
+    result = A_star(input)
     return result
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
-    """return [
+    '''return [
         (5, 6, -1, 1),
         (3, 1, 0, 1),
         (3, 2, -1, 1),
         (1, 4, 0, -1),
         (1, 3, 0, -1)
-    ]"""
+    ]'''
 
 
 # count the total power of one color in board.
@@ -95,7 +95,6 @@ def update_board(board, target, chess_col):
     # create a new chess
     else:
         board[target] = (chess_col, 1)
-
 
 
 # board is a dictionary in form of {(1,1):('r',1),(1,2):('b',2)}
@@ -214,17 +213,22 @@ def heuristic(board) -> int:
         # if no red chess is on the line that in the minimum line list
         return 1 + line_num
 
+
 # build a heap
 import heapq
 
 
-
 # make a node for heap
-def make_q_node(board, num_step):
+def make_q_node(board, num_step, action, parent):
     h_value = heuristic(board)
-    eval = h_value + current_cost
-    node = (eval, board, num_step)
+    eval = h_value + num_step
+    node = (eval, board, num_step, action, parent)
+    if parent is not None:
+        if parent[3] is not None:
+            for pre_act in parent[3]:
+                node[3].insert(0, node[4][3][pre_act])
     return node
+
 
 # check if goal
 def goal_test(node):
@@ -233,47 +237,42 @@ def goal_test(node):
     else:
         return 0
 
+
 # spread a node to six directions
 def find_child(node, child_list):
     cur_board = node[1]
     cur_cost = node[2]
-    num_red = count_red_num(node[1])
     action_list = []
 
     for key, value in cur_board.items():
         if value[0] == 'r':
-            direction = [(0,1), (0,-1), (1,0), (-1,0), (-1,1), (1,-1)]
-            for dir in direction:
-                action = (key[0], key[1], direction[dir][0], direction[dir][1])
+            direction = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, 1), (1, -1)]
+            for d in direction:
+                action = (key[0], key[1], d[0], d[1])
                 action_list.append(action)
 
     for act in action_list:
-        child_board = spread(cur_board, act)
-        child_node = make_q_node(child_board, cur_cost+1)
-        child_tuple = (act, child_node)
-        child_list.append(child_tuple)
-
+        next_board = deepcopy(node[1])
+        child_board = spread(next_board, act)
+        child_node = make_q_node(child_board, cur_cost + 1, [act], node)
+        child_list.append(child_node)
 
 
 # A*
-def astar(board):
-
-    start_node = make_q_node(board, 0)
-    action_tree = TreeNode(board, None)
+def A_star(board):
+    start_node = make_q_node(board, 0, [], None)
     h = []
     heapq.heappush(h, start_node)
 
-    while(j<100000):
-        j = j+1
-        node = heapq.heappop()
+    while True:
+        node = heapq.heappop(h)
         if goal_test(node) == 1:
-            break
+            return node[2]
         else:
             child = []
             find_child(node, child)
             for i in child:
-                heapq.heappush(h,i[1])
-                action_tree.make_child(i[1][1], i[0])
+                heapq.heappush(h, i[1])
 
-    return action_tree.track_back()
+
 

@@ -2,7 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search
+from .program import search
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
 #          You should be modifying the search function in program.py instead.
@@ -16,7 +16,7 @@ from program import search
 # the final action sequence and any other output that may be printed to stdout.
 # Regardless, you must not print anything to stdout in your *final* submission.
 
-def parse_input(input: str) -> dict[tuple, tuple]:
+def parse_input(input):
     """
     Parse input CSV into a dictionary of board cell states.
     """
@@ -28,7 +28,7 @@ def parse_input(input: str) -> dict[tuple, tuple]:
         ]
     }
 
-def print_sequence(sequence: list[tuple]):
+def print_sequence(sequence):
     """
     Print the given action sequence. All actions are prepended with the 
     word "SPREAD", and each action is printed on a new line.
@@ -40,6 +40,7 @@ def main():
     """
     Main entry point for program.
     """
+    # input = {(5, 6): ('r', 2), (1, 0): ('b', 2), (1, 1): ('b', 1), (3, 2): ('b', 1), (1, 3): ('b', 3)}
     input = parse_input(stdin.read())
     sequence: list[tuple] = search(input)
     print_sequence(sequence)
