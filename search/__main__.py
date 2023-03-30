@@ -16,21 +16,21 @@ from .program import search
 # the final action sequence and any other output that may be printed to stdout.
 # Regardless, you must not print anything to stdout in your *final* submission.
 
-def parse_input(input):
+def parse_input(input: str) -> dict[tuple, tuple]:
     """
     Parse input CSV into a dictionary of board cell states.
     """
     return {
         (int(r), int(q)): (p.strip(), int(k))
         for r, q, p, k in [
-            line.split(',') for line in input.splitlines() 
+            line.split(',') for line in input.splitlines()
             if len(line.strip()) > 0
         ]
     }
 
-def print_sequence(sequence):
+def print_sequence(sequence: list[tuple]):
     """
-    Print the given action sequence. All actions are prepended with the 
+    Print the given action sequence. All actions are prepended with the
     word "SPREAD", and each action is printed on a new line.
     """
     for r, q, dr, dq in sequence:
@@ -40,7 +40,6 @@ def main():
     """
     Main entry point for program.
     """
-    # input = {(5, 6): ('r', 2), (1, 0): ('b', 2), (1, 1): ('b', 1), (3, 2): ('b', 1), (1, 3): ('b', 3)}
     input = parse_input(stdin.read())
     sequence: list[tuple] = search(input)
     print_sequence(sequence)

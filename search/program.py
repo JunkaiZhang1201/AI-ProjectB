@@ -1,12 +1,13 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from search.utils import render_board
+from .utils import render_board
 from copy import deepcopy
-from search.Node import Node
+# build a heap
+import heapq
 
 
-def search(input):
+def search(input: dict[tuple, tuple]) -> list[tuple]:
     """
     This is the entry point for your submission. The input is a dictionary
     of board cell states, where the keys are tuples of (r, q) coordinates, and
@@ -25,36 +26,6 @@ def search(input):
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
-    '''return [
-        (5, 6, -1, 1),
-        (3, 1, 0, 1),
-        (3, 2, -1, 1),
-        (1, 4, 0, -1),
-        (1, 3, 0, -1)
-    ]'''
-
-
-# count the total power of one color in board.
-def count_blue_power(board):
-    total = 0
-    value_list = list(board.values())
-
-    for i in range(len(value_list)):
-        if value_list[i][0] == 'b':
-            total += value_list[i][1]
-
-    return total
-
-
-def count_red_power(board):
-    total = 0
-    value_list = list(board.values())
-
-    for i in range(len(value_list)):
-        if value_list[i][0] == 'r':
-            total += value_list[i][1]
-
-    return total
 
 
 # count the total num of one color
@@ -69,17 +40,7 @@ def count_blue_num(board):
     return total
 
 
-def count_red_num(board):
-    total = 0
-    value_list = list(board.values())
-
-    for i in range(len(value_list)):
-        if value_list[i][0] == 'r':
-            total += 1
-
-    return total
-
-
+# update the current board due to the chosen action
 def update_board(board, target, chess_col):
     # update a exist chess
     if target in board:
@@ -98,8 +59,7 @@ def update_board(board, target, chess_col):
         board[target] = (chess_col, 1)
 
 
-# board is a dictionary in form of {(1,1):('r',1),(1,2):('b',2)}
-# action is a tuple in form of (1,1,0,1)
+# update the board when having a spread action
 def spread(board, action):
     target_r = action[0]
     target_q = action[1]
@@ -135,7 +95,6 @@ def spread(board, action):
 
 
 # get D coordinate of a chess
-# which is a tuple in form of (1,1)
 def count_D(chess) -> int:
     if chess[0] + chess[1] == 0 or chess[0] + chess[1] == 7:
         return 0
@@ -153,8 +112,7 @@ def count_D(chess) -> int:
         return 6
 
 
-# get the line list using the greedy algorithm
-# the element in the list which is returned has a form like 'r1'
+# get the line list using greedy algorithm
 def record_line(board, my_dict, my_list) -> list:
     copy_dict = my_dict
     copy_board = board
@@ -181,54 +139,28 @@ def record_line(board, my_dict, my_list) -> list:
                 return record_line(copy_board, copy_dict, my_list)
 
 
+# use the minimum number of the lines which cover all blue chess as the h_value
 def heuristic(board) -> int:
     if count_blue_num(board) == 0:
         return 0
     else:
         record_list = []
         # dic which used to record the coordinates of (lines for) blue chess.
-        findline_dict = {'r0': 0, 'r1': 0, 'r2': 0, 'r3': 0, 'r4': 0, 'r5': 0, 'r6': 0,
-                         'q0': 0, 'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0, 'q5': 0, 'q6': 0,
-                         'D0': 0, 'D1': 0, 'D2': 0, 'D3': 0, 'D4': 0, 'D5': 0, 'D6': 0}
+        find_line_dict = {'r0': 0, 'r1': 0, 'r2': 0, 'r3': 0, 'r4': 0, 'r5': 0, 'r6': 0,
+                          'q0': 0, 'q1': 0, 'q2': 0, 'q3': 0, 'q4': 0, 'q5': 0, 'q6': 0,
+                          'D0': 0, 'D1': 0, 'D2': 0, 'D3': 0, 'D4': 0, 'D5': 0, 'D6': 0}
 
         # count each line's chess num
         for chess in board:
             chess_val = board[chess]
             if chess_val[0] == 'b':
-                findline_dict['r' + f"{chess[0]}"] += 1
-                findline_dict['q' + f"{chess[1]}"] += 1
-                findline_dict['D' + f"{count_D(chess)}"] += 1
+                find_line_dict['r' + f"{chess[0]}"] += 1
+                find_line_dict['q' + f"{chess[1]}"] += 1
+                find_line_dict['D' + f"{count_D(chess)}"] += 1
 
-        line_list = record_line(board, findline_dict, record_list)
+        line_list = record_line(board, find_line_dict, record_list)
         line_num = len(line_list)
-
-        # if a red chess is on the line that in the minimum line list
-        for chess in board:
-            chess_val = board[chess]
-            if chess_val[0] == 'r':
-                if ('r' + f"{chess[0]}") in line_list or \
-                        ('q' + f"{chess[1]}") in line_list or \
-                        ('D' + f"{count_D(chess)}") in line_list:
-                    return line_num
-
-        # if no red chess is on the line that in the minimum line list
-        return 1 + line_num
-
-
-# build a heap
-import heapq
-
-
-# make a node for heap
-# def make_q_node(board, num_step, action, parent):
-#     h_value = heuristic(board)
-#     eval = h_value + num_step
-#     node = (eval, board, num_step, action, parent)
-#     if parent is not None:
-#         if parent[3] is not None:
-#             for pre_act in parent[3]:
-#                 node[3].insert(0, node[4][3][pre_act])
-#     return node
+        return line_num
 
 
 # check if goal
@@ -239,7 +171,7 @@ def goal_test(node):
         return 0
 
 
-# spread a node to six directions
+# spread a node to six directions, make child nodes
 def find_child(node, child_list, heuristic):
     cur_board = node.board
     cur_cost = node.num_step
@@ -259,7 +191,7 @@ def find_child(node, child_list, heuristic):
         child_list.append(child_node)
 
 
-# A*
+# A* search
 def A_star(board, heuristic):
     start_node = Node(board, 0, [], None, heuristic)
     h = []
@@ -276,4 +208,34 @@ def A_star(board, heuristic):
                 heapq.heappush(h, i)
 
 
+# Node class used to record the needed elements of a node, and choose a node to pop when needed
+class Node:
+    def __init__(self, board, num_step, action, parent, heuristic):
+        self.board = board
+        self.num_step = num_step
+        self.action = action
+        self.parent = parent
 
+        h_value = heuristic(board)
+        self.eval = h_value + num_step
+        if parent is not None:
+            if parent.action is not None:
+                self.action = parent.action + self.action
+
+    def __lt__(self, other):
+        return self.eval < other.eval
+
+    def __le__(self, other):
+        return self.eval <= other.eval
+
+    def __gt__(self, other):
+        return self.eval > other.eval
+
+    def __ge__(self, other):
+        return self.eval >= other.eval
+
+    def __eq__(self, other):
+        return self.eval == other.eval
+
+    def __ne__(self, other):
+        return self.eval != other.eval
